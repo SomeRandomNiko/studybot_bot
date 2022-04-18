@@ -17,7 +17,7 @@ export class ExtendedClient extends Client {
 
     async start() {
         await this.registerModules();
-        this.login(config.discordBotToken);
+        await this.login(config.discordBotToken);
     }
 
     async registerModules() {

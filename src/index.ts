@@ -7,14 +7,16 @@ export const studyTimers = new Collection<string, NodeJS.Timeout>();
 process.stdin.resume(); //so the program will not close instantly
 
 // Sets the bot to offline before exiting
-function exitHandler() {
-    console.log("Exiting")
+function exitHandler(event: any) {
+    console.log(`Exiting: ${event}`);
     client.user?.setStatus("invisible");
     process.exit();
 }
 
 // Handling Exit events
-process.on("SIGINT", exitHandler);
+[`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
+    process.on(eventType, exitHandler);
+})
 
 
 client.start();

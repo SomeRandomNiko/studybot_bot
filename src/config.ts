@@ -8,4 +8,5 @@ export default {
     frontendServerUri: process.env.FRONTEND_SERVER_URI || 'http://localhost:4200',
     authServerUri: process.env.AUTH_SERVER_URI || 'http://localhost:8081',
     discordBotToken: process.env.DISCORD_BOT_TOKEN || '',
+    guildIds: process.env.GUILD_IDS ? process.env.GUILD_IDS.split(',') : [],
 }
