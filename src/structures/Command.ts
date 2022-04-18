@@ -1,12 +1,12 @@
-import { ApplicationCommandOptionData, ChatInputApplicationCommandData, CommandInteraction, CommandInteractionOptionResolver, GuildMember } from "discord.js";
+import { ApplicationCommandOptionData, ChatInputApplicationCommandData, CommandInteraction, GuildMember } from "discord.js";
 import { ApplicationCommandTypes } from "discord.js/typings/enums";
-import { ExtendedClient } from "./Client";
+import { invokeMiddlewares, MiddlewareFunction } from "./Middleware";
 
 export class Command implements ChatInputApplicationCommandData {
 
-    middlewares: Middleware[];
+    middlewares: MiddlewareFunction[];
 
-    constructor(commandOptions: ChatInputApplicationCommandData, ...mw: Middleware[]) {
+    constructor(commandOptions: ChatInputApplicationCommandData, ...mw: MiddlewareFunction[]) {
         this.description = commandOptions.description;
         this.name = commandOptions.name;
         this.type = commandOptions.type;
@@ -22,34 +22,15 @@ export class Command implements ChatInputApplicationCommandData {
     name: string;
     defaultPermission?: boolean | undefined;
 
-    use(...mw: Middleware[]) {
+    use(...mw: MiddlewareFunction[]) {
         this.middlewares.push(...mw);
     }
 
-    dispatch(context: RunOptions): Promise<void> {
-        return invokeMiddlewares(context, this.middlewares);
+    dispatch(interaction: ExtendedInteraction): Promise<void> {
+        return invokeMiddlewares(interaction, this.middlewares);
     }
-}
-
-async function invokeMiddlewares(context: RunOptions, middlewares: Middleware[]): Promise<void> {
-    if (!middlewares.length) return;
-
-    const mw = middlewares[0];
-
-    return mw(context, async () => {
-        await invokeMiddlewares(context, middlewares.slice(1));
-    });
 }
 
 export interface ExtendedInteraction extends CommandInteraction {
     member: GuildMember
 }
-
-export interface RunOptions {
-    client: ExtendedClient,
-    interaction: ExtendedInteraction,
-    args: CommandInteractionOptionResolver,
-}
-
-export type Next = () => void | Promise<void>;
-export type Middleware = (context: RunOptions, next: Next) => any;

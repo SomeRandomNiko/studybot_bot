@@ -1,15 +1,17 @@
-import { ApplicationCommandDataResolvable, Client, ClientEvents, Collection } from "discord.js";
+import { ApplicationCommandDataResolvable, ButtonInteraction, Client, ClientEvents, Collection } from "discord.js";
 import config from "../config";
 import glob from "glob";
 import { promisify } from "util"
 import { Event } from "./Events";
 import { Command } from "./Command";
+import { Button } from "./Button";
 
 const globPromise = promisify(glob);
 
 export class ExtendedClient extends Client {
     commands: Collection<string, Command> = new Collection();
     slashCommands: ApplicationCommandDataResolvable[] = [];
+    buttons: Collection<string, Button> = new Collection();
 
     constructor() {
         super({ intents: ["DIRECT_MESSAGES", "GUILD_MESSAGES"] });
@@ -30,7 +32,7 @@ export class ExtendedClient extends Client {
 
             this.commands.set(command.name, command);
             this.slashCommands.push(command);
-
+            console.log("Registered Command: ", command.name);
         });
 
         // Events
@@ -40,6 +42,14 @@ export class ExtendedClient extends Client {
             const event: Event<keyof ClientEvents> = await importFile(filePath);
             this.on(event.name, event.run);
             console.log("Registered Event: ", event.name);
+        });
+
+        // Buttons
+        const buttonFiles = await globPromise(`${__dirname}/../buttons/*{.ts,.js}`);
+
+        buttonFiles.forEach(async filePath => {
+            const button: Button = await importFile(filePath);
+            this.buttons.set(button.customId, button);
         });
     }
 
