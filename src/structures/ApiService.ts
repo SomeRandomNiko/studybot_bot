@@ -12,10 +12,17 @@ function generateAuthHeader(userId: string) {
 export async function getUserData(userId: string) {
     try {
         const response = await axiosInstance.get("/user/me", { headers: generateAuthHeader(userId) });
-        console.log("Success", response.data);
         return response.data;
     } catch (error) {
-        console.log("Error", error);
+        return Promise.reject(error);
+    }
+}
+
+export async function getGrades(userId: string) {
+    try {
+        const response = await axiosInstance.get("/digreg/grades", { headers: generateAuthHeader(userId) });
+        return response.data;
+    } catch (error) {
         return Promise.reject(error);
     }
 }
