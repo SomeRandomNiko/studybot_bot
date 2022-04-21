@@ -2,7 +2,7 @@ import { ButtonInteraction, CommandInteraction, MessageActionRow, MessageButton 
 import { client } from "..";
 import { Event } from "../structures/Events";
 import { ExtendedInteraction } from "../structures/Command"
-import { ExtendedEmbed } from "../structures/Embed";
+import { ErrorEmbed, ExtendedEmbed } from "../structures/Embed";
 import { bold, inlineCode } from "@discordjs/builders";
 
 export default new Event("interactionCreate", async (interaction) => {
@@ -22,11 +22,8 @@ export default new Event("interactionCreate", async (interaction) => {
 });
 
 function sendNotFoundMessage(interaction: CommandInteraction | ButtonInteraction) {
-    const embed = new ExtendedEmbed("error", {
-        title: "Command does not exist",
-        description: interaction.isCommand() ? `The command ${bold(interaction.commandName)} was not found.
-        For a list of available commands use ${inlineCode("/help")} or click the button below.` : `The Action for this button was not found.`,
-    });
+    const embed = new ErrorEmbed(interaction.isCommand() ? `The command ${bold(interaction.commandName)} was not found.
+    For a list of available commands use ${inlineCode("/help")} or click the button below.` : `The Action for this button was not found.`);
 
     const helpButton = new MessageButton().setLabel("Help").setStyle("PRIMARY").setCustomId("help");
 
