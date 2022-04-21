@@ -9,9 +9,10 @@ export default new Command({
 
 export async function testController(interaction: ExtendedInteraction | ButtonInteraction) {
     interaction.followUp({
-        embeds: [new ExtendedEmbed("success", {
+        embeds: [new ExtendedEmbed({
             title: "Test",
             description: "This is a test",
+            color: 0x696969
         })]
     })
 }
