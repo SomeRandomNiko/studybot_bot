@@ -1,8 +1,10 @@
-import { ButtonInteraction } from "discord.js";
+import { ButtonInteraction, ExcludeEnum, MessageButton } from "discord.js";
+import { MessageButtonStyles } from "discord.js/typings/enums";
 import { invokeMiddlewares, MiddlewareFunction } from "./Middleware";
 
-export class Button {
-    constructor(public customId: string, ...mw: MiddlewareFunction[]) {
+export class Button extends MessageButton {
+    constructor(public customId: string, label: string, style: ExcludeEnum<typeof MessageButtonStyles, "LINK">, ...mw: MiddlewareFunction[]) {
+        super({ style: style || "PRIMARY", customId, label });
         this.use(...mw);
     }
 

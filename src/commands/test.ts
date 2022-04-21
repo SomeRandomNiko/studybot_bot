@@ -8,7 +8,7 @@ export default new Command({
 }, testController)
 
 export async function testController(interaction: ExtendedInteraction | ButtonInteraction) {
-    interaction.followUp({
+    interaction.reply({
         embeds: [new ExtendedEmbed({
             title: "Test",
             description: "This is a test",

@@ -30,7 +30,7 @@ function sendError(interaction: ExtendedInteraction, status?: number) {
             break;
     }
 
-    interaction.followUp({ embeds: [embed] });
+    interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
 async function gradesController(interaction: ExtendedInteraction | ButtonInteraction) {
@@ -39,7 +39,7 @@ async function gradesController(interaction: ExtendedInteraction | ButtonInterac
 
         try {
             const gradesData = await getGrades(interaction.user.id);
-            interaction.followUp({ embeds: [new GradesDataEmbed(interaction.user, gradesData, subjectSearch?.toString())] })
+            interaction.reply({ embeds: [new GradesDataEmbed(interaction.user, gradesData, subjectSearch?.toString())], ephemeral: true })
         } catch (error) {
             console.log(error)
             const status = (error as AxiosError).response?.status;

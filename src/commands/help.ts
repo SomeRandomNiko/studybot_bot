@@ -10,5 +10,5 @@ export default new Command({
 }, helpController);
 
 export async function helpController(interaction: ExtendedInteraction | ButtonInteraction) {
-    interaction.followUp("ok");
+    interaction.reply("ok");
 }

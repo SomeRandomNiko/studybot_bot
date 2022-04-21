@@ -21,8 +21,8 @@ export class ErrorEmbed extends ExtendedEmbed {
 }
 
 export class InfoEmbed extends ExtendedEmbed {
-    constructor() {
-        super({ color: 0xffffff });
+    constructor(message?: string) {
+        super({ color: 0xffffff, description: message });
     }
 }
 
@@ -91,5 +91,16 @@ export class GradesDataEmbed extends InfoEmbed {
         } else return this.allGrades(allSubjects);
 
 
+    }
+}
+
+export class TimerEmbed extends InfoEmbed {
+    constructor(timer: any) {
+        super();
+        this.setTitle("Study Timer");
+        this.setDescription("Your Study Timer. Use the Buttons or the Commands to control it.");
+        console.log(timer);
+        this.addField("Study Time", timer.studyTime.toString(), true);
+        this.addField("Break Time", timer.breakTime.toString(), true);
     }
 }

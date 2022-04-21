@@ -26,3 +26,12 @@ export async function getGrades(userId: string) {
         return Promise.reject(error);
     }
 }
+
+export async function getTimer(userId: string) {
+    try {
+        const response = await axiosInstance.get("/timer", { headers: generateAuthHeader(userId) });
+        return response.data;
+    } catch (error) {
+        return Promise.reject(error);
+    }
+}

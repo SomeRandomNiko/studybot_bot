@@ -25,7 +25,7 @@ async function userController(interaction: ExtendedInteraction | ButtonInteracti
 
         try {
             const userData = await getUserData(mentionedUserId);
-            interaction.followUp({embeds: [new UserDataEmbed(userData)]});
+            interaction.reply({embeds: [new UserDataEmbed(userData)], ephemeral: true});
         } catch (error) {
             const status = (error as AxiosError).response?.status;
             sendError(interaction, status);
@@ -49,5 +49,5 @@ function sendError(interaction: ExtendedInteraction, status?: number) {
             break;
     }
 
-    interaction.followUp({ embeds: [embed] });
+    interaction.reply({ embeds: [embed], ephemeral: true });
 }
