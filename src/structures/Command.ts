@@ -1,12 +1,12 @@
-import { ApplicationCommandOptionData, ChatInputApplicationCommandData, CommandInteraction, GuildMember } from "discord.js";
+import { ApplicationCommandAutocompleteOption, ApplicationCommandOptionData, AutocompleteInteraction, ChatInputApplicationCommandData, CommandInteraction, GuildMember, Interaction } from "discord.js";
 import { ApplicationCommandTypes } from "discord.js/typings/enums";
 import { invokeMiddlewares, MiddlewareFunction } from "./Middleware";
 
 export class Command implements ChatInputApplicationCommandData {
 
-    middlewares: MiddlewareFunction[];
+    middlewares: MiddlewareFunction<CommandInteraction>[];
 
-    constructor(commandOptions: ChatInputApplicationCommandData, ...mw: MiddlewareFunction[]) {
+    constructor(commandOptions: ChatInputApplicationCommandData, ...mw: MiddlewareFunction<CommandInteraction>[]) {
         this.description = commandOptions.description;
         this.name = commandOptions.name;
         this.type = commandOptions.type;
@@ -22,15 +22,11 @@ export class Command implements ChatInputApplicationCommandData {
     name: string;
     defaultPermission?: boolean | undefined;
 
-    use(...mw: MiddlewareFunction[]) {
+    use(...mw: MiddlewareFunction<CommandInteraction>[]) {
         this.middlewares.push(...mw);
     }
 
-    dispatch(interaction: ExtendedInteraction): Promise<void> {
+    dispatch(interaction: CommandInteraction) {
         return invokeMiddlewares(interaction, this.middlewares);
     }
-}
-
-export interface ExtendedInteraction extends CommandInteraction {
-    member: GuildMember
 }

@@ -1,9 +1,9 @@
-import { Command, ExtendedInteraction } from "../structures/Command";
-import { ButtonInteraction } from "discord.js";
-import { getGrades, getUserData } from "../structures/ApiService";
+import { Command } from "../structures/Command";
+import { CommandInteraction, Interaction, MessageComponentInteraction } from "discord.js";
+import { getGrades } from "../structures/ApiService";
 import { AxiosError } from "axios";
-import { ErrorEmbed, GradesDataEmbed, UserDataEmbed } from "../structures/Embed";
-import { hyperlink, italic, userMention } from "@discordjs/builders";
+import { ErrorEmbed, GradesDataEmbed } from "../structures/Embed";
+import { hyperlink, italic } from "@discordjs/builders";
 import config from "../config";
 
 export default new Command({
@@ -14,7 +14,7 @@ export default new Command({
     ],
 }, gradesController);
 
-function sendError(interaction: ExtendedInteraction, status?: number) {
+function sendError(interaction: CommandInteraction | MessageComponentInteraction, status?: number) {
     let embed;
     switch (status) {
         case 401:
@@ -33,7 +33,7 @@ function sendError(interaction: ExtendedInteraction, status?: number) {
     interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
-async function gradesController(interaction: ExtendedInteraction | ButtonInteraction) {
+async function gradesController(interaction: Interaction) {
     if (interaction.isCommand()) {
         const subjectSearch = interaction.options.getString("subject");
 

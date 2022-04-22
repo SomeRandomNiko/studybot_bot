@@ -1,4 +1,4 @@
-import { ApplicationCommandDataResolvable, ButtonInteraction, Client, ClientEvents, Collection } from "discord.js";
+import { ApplicationCommandDataResolvable, Interaction, Client, ClientEvents, Collection } from "discord.js";
 import config from "../config";
 import glob from "glob";
 import { promisify } from "util"

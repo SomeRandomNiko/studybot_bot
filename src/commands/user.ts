@@ -1,10 +1,11 @@
-import { Command, ExtendedInteraction } from "../structures/Command";
-import { ButtonInteraction } from "discord.js";
+import { Command } from "../structures/Command";
+import { Interaction } from "discord.js";
 import { getUserData } from "../structures/ApiService";
 import { AxiosError } from "axios";
 import { ErrorEmbed, UserDataEmbed } from "../structures/Embed";
 import { hyperlink } from "@discordjs/builders";
 import config from "../config";
+import { RepliableInteraction } from "../structures/Middleware";
 
 
 export default new Command({
@@ -18,7 +19,7 @@ export default new Command({
     }],
 }, userController);
 
-async function userController(interaction: ExtendedInteraction | ButtonInteraction) {
+async function userController(interaction: Interaction) {
 
     if (interaction.isCommand()) {
         const mentionedUserId = interaction.options.getUser("user")?.id || interaction.user.id;
@@ -33,7 +34,7 @@ async function userController(interaction: ExtendedInteraction | ButtonInteracti
     }
 }
 
-function sendError(interaction: ExtendedInteraction, status?: number) {
+function sendError(interaction: RepliableInteraction, status?: number) {
     let embed;
     switch (status) {
         case 401:

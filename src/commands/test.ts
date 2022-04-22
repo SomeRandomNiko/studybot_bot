@@ -1,13 +1,13 @@
-import { ButtonInteraction } from "discord.js";
-import { Command, ExtendedInteraction } from "../structures/Command";
+import { Command } from "../structures/Command";
 import { ExtendedEmbed } from "../structures/Embed";
+import { RepliableInteraction } from "../structures/Middleware";
 
 export default new Command({
     name: "test",
     description: "Test command",
 }, testController)
 
-export async function testController(interaction: ExtendedInteraction | ButtonInteraction) {
+export async function testController(interaction: RepliableInteraction) {
     interaction.reply({
         embeds: [new ExtendedEmbed({
             title: "Test",

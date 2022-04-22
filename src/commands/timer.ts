@@ -1,10 +1,11 @@
-import { ButtonInteraction, CommandInteraction, MessageActionRow } from "discord.js";
+import { Interaction, CommandInteraction, MessageActionRow } from "discord.js";
 import { studyTimers } from "..";
-import { Command, ExtendedInteraction } from "../structures/Command";
+import { Command } from "../structures/Command";
 import { ErrorEmbed, InfoEmbed, TimerEmbed } from "../structures/Embed";
 import stop_timer from "../buttons/stop_timer";
 import { getTimer } from "../structures/ApiService";
 import start_timer from "../buttons/start_timer";
+import { RepliableInteraction } from "../structures/Middleware";
 
 export default new Command({
     name: "timer",
@@ -16,7 +17,7 @@ export default new Command({
     ]
 }, timerController);
 
-function timerController(interaction: ExtendedInteraction | ButtonInteraction) {
+function timerController(interaction: Interaction) {
     if(interaction.isCommand()) {
         const subcommand = interaction.options.getSubcommand();
     
@@ -36,7 +37,7 @@ function timerController(interaction: ExtendedInteraction | ButtonInteraction) {
     }
 }
 
-export async function startTimer(interaction: ExtendedInteraction | ButtonInteraction) {
+export async function startTimer(interaction: RepliableInteraction) {
     const timer = await getTimer(interaction.user.id);
     if (timer) {
         if (!studyTimers.has(interaction.user.id)) {
@@ -50,7 +51,7 @@ export async function startTimer(interaction: ExtendedInteraction | ButtonIntera
     }
 
 }
-export async function stopTimer(interaction: ExtendedInteraction | ButtonInteraction) {
+export async function stopTimer(interaction: RepliableInteraction) {
     const timeout = studyTimers.get(interaction.user.id);
     if (timeout) {
         clearTimeout(timeout);
@@ -60,7 +61,7 @@ export async function stopTimer(interaction: ExtendedInteraction | ButtonInterac
         interaction.reply({ephemeral: true, embeds: [new InfoEmbed("You have no active timer")]});
     }
 }
-async function viewTimer(interaction: ExtendedInteraction | ButtonInteraction) {
+async function viewTimer(interaction: RepliableInteraction) {
     const timer = await getTimer(interaction.user.id);
     if (timer) {
         interaction.reply({embeds: [new TimerEmbed(timer)], components: [new MessageActionRow().addComponents(start_timer, stop_timer)], ephemeral: true});
@@ -69,7 +70,7 @@ async function viewTimer(interaction: ExtendedInteraction | ButtonInteraction) {
     }
 }
 
-async function sendBreakMessage(interaction: ExtendedInteraction | ButtonInteraction, timer: any) {
+async function sendBreakMessage(interaction: Interaction, timer: any) {
     const dmChannel = await interaction.user.createDM();
     dmChannel.send(`☕ It's time for a break. Study time starts in ${timer.breakTime} minute(s).`);
 
@@ -77,7 +78,7 @@ async function sendBreakMessage(interaction: ExtendedInteraction | ButtonInterac
     studyTimers.set(interaction.user.id, timeout);
 }
 
-async function sendStudyMessage(interaction: ExtendedInteraction | ButtonInteraction, timer: any) {
+async function sendStudyMessage(interaction: Interaction, timer: any) {
     const dmChannel = await interaction.user.createDM();
     dmChannel.send(`📖 Time to study. Break starts in ${timer.studyTime} minute(s).`);
 

@@ -1,10 +1,10 @@
-import { ButtonInteraction } from "discord.js";
-import { ExtendedInteraction } from "./Command";
+import { CommandInteraction, Interaction, MessageComponentInteraction } from "discord.js";
 
 export type NextFunction = () => void | Promise<void>;
-export type MiddlewareFunction<T extends ButtonInteraction | ExtendedInteraction = ButtonInteraction | ExtendedInteraction> = (interaction: T, next?: NextFunction) => any
+export type MiddlewareFunction<T extends RepliableInteraction> = (interaction: T, next?: NextFunction) => any
+export type RepliableInteraction = CommandInteraction | MessageComponentInteraction;
 
-export async function invokeMiddlewares(interaction: ButtonInteraction | ExtendedInteraction, middlewares: MiddlewareFunction<ButtonInteraction | ExtendedInteraction>[]): Promise<void> {
+export async function invokeMiddlewares<T extends RepliableInteraction>(interaction: T, middlewares: MiddlewareFunction<T>[]): Promise<void> {
     if (!middlewares.length) return;
 
     const mw = middlewares[0];

@@ -1,5 +1,5 @@
-import { ButtonInteraction } from "discord.js";
-import { Command, ExtendedInteraction } from "../structures/Command";
+import { Command } from "../structures/Command";
+import { RepliableInteraction } from "../structures/Middleware";
 
 export default new Command({
     name: "help",
@@ -9,6 +9,6 @@ export default new Command({
     ]
 }, helpController);
 
-export async function helpController(interaction: ExtendedInteraction | ButtonInteraction) {
+export async function helpController(interaction: RepliableInteraction) {
     interaction.reply("ok");
 }
