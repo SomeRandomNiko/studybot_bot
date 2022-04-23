@@ -1,5 +1,5 @@
 import axios from "axios";
-import config from "../config";
+import config from "../shared/config";
 import jwt from "jsonwebtoken";
 
 const axiosInstance = axios.create({ baseURL: config.apiServerUri });

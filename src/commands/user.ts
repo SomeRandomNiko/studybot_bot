@@ -4,7 +4,7 @@ import { getUserData } from "../structures/ApiService";
 import { AxiosError } from "axios";
 import { ErrorEmbed, UserDataEmbed } from "../structures/Embed";
 import { hyperlink } from "@discordjs/builders";
-import config from "../config";
+import config from "../shared/config";
 import { RepliableInteraction } from "../structures/Middleware";
 
 

@@ -1,7 +1,7 @@
 import { EmbedField, MessageEmbed, MessageEmbedOptions, User } from "discord.js";
 
 import { bold, hyperlink, italic, userMention } from "@discordjs/builders";
-import config from "../config";
+import config from "../shared/config";
 import Fuse from "fuse.js";
 
 export class ExtendedEmbed extends MessageEmbed {

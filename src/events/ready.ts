@@ -1,6 +1,6 @@
 import { client } from "..";
 import { Event } from "../structures/Events";
-import config from "../config";
+import config from "../shared/config";
 
 export default new Event("ready", () => {
     console.log(`Client Logged in as ${client.user?.username}#${client.user?.discriminator}`);

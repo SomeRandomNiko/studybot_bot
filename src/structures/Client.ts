@@ -1,5 +1,5 @@
 import { ApplicationCommandDataResolvable, Interaction, Client, ClientEvents, Collection } from "discord.js";
-import config from "../config";
+import config from "../shared/config";
 import glob from "glob";
 import { promisify } from "util"
 import { Event } from "./Events";

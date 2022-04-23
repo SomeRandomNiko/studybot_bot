@@ -4,7 +4,7 @@ import { getGrades } from "../structures/ApiService";
 import { AxiosError } from "axios";
 import { ErrorEmbed, GradesDataEmbed } from "../structures/Embed";
 import { hyperlink, italic } from "@discordjs/builders";
-import config from "../config";
+import config from "../shared/config";
 
 export default new Command({
     name: "grades",
