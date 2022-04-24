@@ -1,8 +1,9 @@
-import { Collection } from "discord.js";
+import { Collection, Message } from "discord.js";
+import { StudyTimeout } from "./commands/timer";
 import { ExtendedClient } from "./structures/Client";
 
 export const client = new ExtendedClient();
-export const studyTimers = new Collection<string, NodeJS.Timeout>();
+export const studyTimers = new Collection<string, StudyTimeout>();
 
 process.stdin.resume(); //so the program will not close instantly
 
