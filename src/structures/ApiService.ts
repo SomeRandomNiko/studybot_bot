@@ -35,3 +35,12 @@ export async function getTimer(userId: string) {
         return Promise.reject(error);
     }
 }
+
+export async function isDigregConnected(userId: string) {
+    try {
+        const userData = await getUserData(userId);
+        return !!userData.digreg;
+    } catch (error) {
+        return Promise.reject(error);
+    }
+}
