@@ -1,4 +1,4 @@
-import { Interaction, MessageActionRow, Message, MessageEmbed } from "discord.js";
+import { Interaction, MessageActionRow, Message } from "discord.js";
 import { studyTimers } from "..";
 import { Command } from "../structures/Command";
 import { ErrorEmbed, InfoEmbed, TimerEmbed } from "../structures/Embed";
@@ -6,8 +6,7 @@ import stop_timer from "../buttons/stop_timer";
 import { getTimer } from "../structures/ApiService";
 import start_timer from "../buttons/start_timer";
 import { RepliableInteraction } from "../structures/Middleware";
-import { EmbedBuilder, time, ActionRowBuilder } from "@discordjs/builders";
-import { Button } from "../structures/Button";
+import { time } from "@discordjs/builders";
 
 export default new Command({
     name: "timer",
@@ -20,11 +19,13 @@ export default new Command({
 }, timerController);
 
 function makeMessage(type: "study" | "break", timer: any, timeout?: StudyTimeout) {
-    const embed = new MessageEmbed();
-    embed.setTitle("Study Timer").setColor(0xffffff).addFields({ name: "Completed study sessions", value: `${timeout?.streak || 0}` });
+    const embed = new InfoEmbed();
+    embed.setTitle("Study Timer").addFields({ name: "Completed study sessions", value: `${timeout?.streak || 0}` });
     if (type == "study") {
+        embed.setDescription("Time to study 📖");
         embed.addFields({ name: "Next Break", value: `${time(Math.round(new Date().getTime() / 1000) + timer.studyTime * 60, "R")}` });
     } else {
+        embed.setDescription("Time for a break ☕");
         embed.addFields({ name: "Next Study Session", value: `${time(Math.round(new Date().getTime() / 1000) + timer.breakTime * 60, "R")}` });
     }
 
@@ -55,13 +56,13 @@ export async function startTimer(interaction: RepliableInteraction) {
     const timer = await getTimer(interaction.user.id);
     if (timer) {
         if (!studyTimers.has(interaction.user.id)) {
-            interaction.reply({ embeds: [new InfoEmbed("Timer started")], ephemeral: true });
+            interaction.reply({ embeds: [new InfoEmbed("⏱️ Timer started")], ephemeral: true });
             sendStudyMessage(interaction, timer);
         } else {
-            interaction.reply({ ephemeral: true, embeds: [new InfoEmbed("Timer is already active")] });
+            interaction.reply({ ephemeral: true, embeds: [new InfoEmbed("ℹ️ Timer is already active")] });
         }
     } else {
-        interaction.reply({ embeds: [new ErrorEmbed("Error with starting the timer")], ephemeral: true });
+        interaction.reply({ embeds: [new ErrorEmbed("❌ Error with starting the timer")], ephemeral: true });
     }
 
 }
@@ -71,9 +72,9 @@ export async function stopTimer(interaction: RepliableInteraction) {
         clearTimeout(timeout.timeoutHandle);
         await timeout.message.delete();
         studyTimers.delete(interaction.user.id);
-        interaction.reply({ ephemeral: true, embeds: [new InfoEmbed("Timer stopped")] });
+        interaction.reply({ ephemeral: true, embeds: [new InfoEmbed("⏱️ Timer stopped")] });
     } else {
-        interaction.reply({ ephemeral: true, embeds: [new InfoEmbed("You have no active timer")] });
+        interaction.reply({ ephemeral: true, embeds: [new InfoEmbed("ℹ️ You have no active timer")] });
     }
 }
 async function viewTimer(interaction: RepliableInteraction) {
@@ -81,7 +82,7 @@ async function viewTimer(interaction: RepliableInteraction) {
     if (timer) {
         interaction.reply({ embeds: [new TimerEmbed(timer)], components: [new MessageActionRow().addComponents(start_timer, stop_timer)], ephemeral: true });
     } else {
-        interaction.reply({ embeds: [new ErrorEmbed("Error retrieving the timer")], ephemeral: true });
+        interaction.reply({ embeds: [new ErrorEmbed("❌ Error retrieving the timer")], ephemeral: true });
     }
 }
 
