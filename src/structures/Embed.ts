@@ -44,12 +44,13 @@ export class GradesDataEmbed extends InfoEmbed {
     constructor(user: User, gradesData: any, subjectSearch?: string) {
         super();
         
-        let {embedFields, subjectName, description} = subjectSearch ? this.selectedSubject(gradesData, subjectSearch) : this.allGrades(gradesData);
+        let { embedFields, subjectName, description} = subjectSearch ? this.selectedSubject(gradesData, subjectSearch) : this.allGrades(gradesData);
 
         this.setTitle(`Grades: ${subjectName}`);
         this.setAuthor({ name: user.username, iconURL: user.avatarURL({ dynamic: true }) || user.defaultAvatarURL });
         this.setDescription(description);
         this.setFields(embedFields);
+        this.setImage("attachment://chart.png");
     }
 
     private allGrades(gradesData: any) {
@@ -66,6 +67,8 @@ export class GradesDataEmbed extends InfoEmbed {
                 inline: true
             }
         });
+
+
         return { embedFields, description: `Semester average ${bold(averageSemester)}`, subjectName: "All subjects" }
     }
 
@@ -89,8 +92,6 @@ export class GradesDataEmbed extends InfoEmbed {
             return { embedFields, description: subject.averageSemester ? `Average: ${bold(subject.averageSemester.toFixed(2))}` : "/", subjectName: subject.subject as string}
 
         } else return this.allGrades(allSubjects);
-
-
     }
 }
 
