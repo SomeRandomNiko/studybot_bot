@@ -1,5 +1,5 @@
 import { Command } from "../structures/Command";
-import { CommandInteraction, Interaction, MessageAttachment, MessageComponentInteraction } from "discord.js";
+import { ApplicationCommandOptionChoice, AutocompleteInteraction, CommandInteraction, Interaction, MessageAttachment, MessageComponentInteraction } from "discord.js";
 import { getGrades } from "../structures/ApiService";
 import { AxiosError } from "axios";
 import { ErrorEmbed, GradesDataEmbed } from "../structures/Embed";
@@ -13,9 +13,24 @@ export default new Command({
     name: "grades",
     description: "Displays a List of all your grades",
     options: [
-        { name: "subject", description: "The Subject", type: "STRING", required: false }
+        { name: "subject", description: "The Subject", type: "STRING", required: false, autocomplete: true }
     ],
+    autocomplete,
 }, gradesController);
+
+function autocomplete(interaction: AutocompleteInteraction): ApplicationCommandOptionChoice[] {
+    // TODO GET LIST OF ALL SUBJECTS
+    return [
+        {
+            name: "Informatik",
+            value: "Informatik"
+        },
+        {
+            name: "Systeme und Netze",
+            value: "Systeme und Netze"
+        },
+    ];
+}
 
 function sendError(interaction: CommandInteraction | MessageComponentInteraction, status?: number) {
     let embed;
