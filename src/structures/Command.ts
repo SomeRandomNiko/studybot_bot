@@ -3,7 +3,7 @@ import { ApplicationCommandTypes } from "discord.js/typings/enums";
 import { invokeMiddlewares, MiddlewareFunction } from "./Middleware";
 
 export interface CommandOptionsData extends ChatInputApplicationCommandData {
-    autocomplete?: (interaction: AutocompleteInteraction) => ApplicationCommandOptionChoice[],
+    autocomplete?: (interaction: AutocompleteInteraction) => Promise<ApplicationCommandOptionChoice[]>,
 }
 
 export class Command implements CommandOptionsData {
@@ -22,7 +22,7 @@ export class Command implements CommandOptionsData {
         this.use(...mw);
     }
 
-    autocomplete?: (interaction: AutocompleteInteraction<CacheType>) => ApplicationCommandOptionChoice[];
+    autocomplete?: (interaction: AutocompleteInteraction<CacheType>) => Promise<ApplicationCommandOptionChoice[]>;
     description: string;
     type?: "CHAT_INPUT" | ApplicationCommandTypes.CHAT_INPUT | undefined;
     options?: ApplicationCommandOptionData[] | undefined;

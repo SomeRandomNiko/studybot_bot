@@ -18,7 +18,7 @@ export default new Event("interactionCreate", async (interaction) => {
     } else if (interaction.isAutocomplete()) {
         const command = client.commands.get(interaction.commandName);
         if (!command) return interaction.respond([]);
-        interaction.respond(command.autocomplete?.(interaction) || []);
+        interaction.respond(await command.autocomplete?.(interaction) || []);
     }
 });
 
