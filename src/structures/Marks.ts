@@ -12,14 +12,14 @@ export async function getCachedGrades(userId: string) {
     if (cached) {
         clearTimeout(cached.timeout);
         const timeout = setTimeout(() => gradesCache.delete(userId), 60000);
-        cached.timeout =  timeout;
+        cached.timeout = timeout;
         return cached.grades;
+    } else {
+        const grades = new StudybotApi.Grades(await getGrades(userId));
+        const timeout = setTimeout(() => gradesCache.delete(userId), 10000);
+        gradesCache.set(userId, { grades, timeout });
+        return grades;
     }
-    
-    const grades = new StudybotApi.Grades(await getGrades(userId));
-    const timeout = setTimeout(() => gradesCache.delete(userId), 10000);
-    gradesCache.set(userId, { grades, timeout });
-
 }
 
 export namespace StudybotApi {
