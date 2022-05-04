@@ -23,11 +23,16 @@ async function autocomplete(interaction: AutocompleteInteraction): Promise<Appli
         if (!grades)
             return [];
 
+
         const fuse = new Fuse(grades.subjectNames);
 
         let foundSubjects = fuse.search(interaction.options.getString("subject") || "").map(f => f.item);
+
+
         if (!foundSubjects.length)
             foundSubjects = grades.subjectNames;
+
+
         return foundSubjects.map(s => {
             return {
                 name: s,

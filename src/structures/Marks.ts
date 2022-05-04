@@ -76,6 +76,39 @@ export namespace StudybotApi {
             return !!this.marks.length
         }
 
+        get averageLineCoordinates() {
+            const allNums = this.marksByDate.map(m => m.mark);
+            const allWeights = this.marksByDate.map(m => m.weight);
+
+            const nums: number[] = []
+            const weights: number[] = []
+
+            const average: number[] = [];
+
+            while (allNums.length) {
+
+
+                nums.push(...allNums.splice(0, 1));
+                weights.push(...allWeights.splice(0, 1));
+
+                const [sum, weightSum] = weights.reduce(
+                    (acc, w, i) => {
+                        acc[0] = acc[0] + nums[i] * w;
+                        acc[1] = acc[1] + w;
+                        return acc;
+                    },
+                    [0, 0]
+                );
+                average.push(sum / weightSum);
+            }
+            return average.map((m, i) => {
+                return {
+                    x: this.marksByDate[i].date as any,
+                    y: m
+                }
+            });
+        }
+
         get chartLineCoordinates() {
             return this.marksByDate.map(m => {
                 return {
@@ -100,7 +133,7 @@ export namespace StudybotApi {
         }
 
         private get chartDataset(): ChartDataset<"line"> {
-            const color = chroma.css("white");
+            const color = chroma.css("lime");
             return {
                 label: this.subjectName,
                 data: this.chartLineCoordinates,
@@ -112,8 +145,22 @@ export namespace StudybotApi {
             }
         }
 
+        private get averageDataset(): ChartDataset<"line"> {
+            const color = chroma.css("white");
+            return {
+                borderDash: [10, 10],
+                label: "Average",
+                data: this.averageLineCoordinates,
+                backgroundColor: color.hex("rgb"),
+                borderColor: color.darken(.2).hex("rgb"),
+                cubicInterpolationMode: 'monotone',
+                tension: 0.6,
+                pointRadius: 0,
+            }
+        }
+
         renderChart() {
-            gradesChart.data.datasets = [this.chartDataset];
+            gradesChart.data.datasets = [this.chartDataset, this.averageDataset];
             gradesChart.update();
             return canvas.createPNGStream();
         }
@@ -130,6 +177,13 @@ export namespace StudybotApi {
                 })
                 this.subjects.push(new Subject(subjectData.subject, marks));
             });
+        }
+
+
+        get allMarksByDate() {
+            const allMarks: Mark[] = [];
+            this.subjectsWithMarks.forEach(s => allMarks.push(...s.marks));
+            return allMarks.sort(sortMarksByDate);
         }
 
         get subjectNames() {
@@ -151,6 +205,51 @@ export namespace StudybotApi {
             return sum / this.subjectsWithMarks.length;
         }
 
+        private get averageDataset(): ChartDataset<"line"> {
+            const color = chroma.css("white");
+            return {
+                borderDash: [10, 10],
+                label: "Average",
+                data: this.averageLineCoordinates,
+                backgroundColor: color.hex("rgb"),
+                borderColor: color.darken(.2).hex("rgb"),
+                cubicInterpolationMode: 'monotone',
+                tension: 0.6,
+                pointRadius: 0,
+            }
+        }
+
+        get averageLineCoordinates() {
+            const allNums = this.allMarksByDate.map(m => m.mark);
+            const allWeights = this.allMarksByDate.map(m => m.weight);
+
+            const nums: number[] = []
+            const weights: number[] = []
+
+            const average: number[] = [];
+
+            while (allNums.length) {
+                nums.push(...allNums.splice(0, 1));
+                weights.push(...allWeights.splice(0, 1));
+
+                const [sum, weightSum] = weights.reduce(
+                    (acc, w, i) => {
+                        acc[0] = acc[0] + nums[i] * w;
+                        acc[1] = acc[1] + w;
+                        return acc;
+                    },
+                    [0, 0]
+                );
+                average.push(sum / weightSum);
+            }
+            return average.map((m, i) => {
+                return {
+                    x: this.allMarksByDate[i].date as any,
+                    y: m
+                }
+            });
+        }
+
         private get chartDatasets(): ChartDataset<"line">[] {
             return this.subjectsWithMarks.map((s, index) => {
                 return {
@@ -166,7 +265,7 @@ export namespace StudybotApi {
         }
 
         renderChart() {
-            gradesChart.data.datasets = this.chartDatasets;
+            gradesChart.data.datasets = [this.averageDataset, ...this.chartDatasets];
             gradesChart.update();
             return canvas.createPNGStream();
         }
