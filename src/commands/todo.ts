@@ -3,7 +3,7 @@ import { ApplicationCommandOptionChoice, AutocompleteInteraction, CommandInterac
 import Fuse from "fuse.js";
 import { addTask, getTask, getTodoList, markTaskDone, removeTask } from "../structures/ApiService";
 import { Command } from "../structures/Command";
-import { InfoEmbed } from "../structures/Embed";
+import { ErrorEmbed, InfoEmbed } from "../structures/Embed";
 import { Task, TodoList } from "../structures/TodoList";
 
 export default new Command({
@@ -62,7 +62,7 @@ function todoController(interaction: CommandInteraction) {
         return todoAddController(interaction);
     if (subcommand === "done")
         return todoDoneController(interaction);
-    if(subcommand === "remove")
+    if (subcommand === "remove")
         return todoRemoveController(interaction);
     return todoViewController(interaction);
 }
@@ -70,20 +70,32 @@ function todoController(interaction: CommandInteraction) {
 async function todoAddController(interaction: CommandInteraction) {
     const title = interaction.options.getString("title", true);
     const description = interaction.options.getString("description");
-    await addTask(interaction.user.id, new Task(title, description || undefined));
-    replyTodoList(interaction);
+    try {
+        await addTask(interaction.user.id, new Task(title, description || undefined));
+        replyTodoList(interaction);
+    } catch (error) {
+        replyError(interaction, "An error occured while adding your Task. Try again later.");
+    }
 }
 async function todoDoneController(interaction: CommandInteraction) {
     const taskId = interaction.options.getString("title", true)
-    const task = await getTask(interaction.user.id, taskId);
-    await markTaskDone(interaction.user.id, task);
-    replyTodoList(interaction);
+    try {
+        const task = await getTask(interaction.user.id, taskId);
+        await markTaskDone(interaction.user.id, task);
+        replyTodoList(interaction);
+    } catch (error) {
+        replyError(interaction, "An error occured while marking your Task as done. Maybe the title you entered is invalid. Try again later.");
+    }
 }
 
 async function todoRemoveController(interaction: CommandInteraction) {
     const taskId = interaction.options.getString("title", true);
-    await removeTask(interaction.user.id, taskId);
-    replyTodoList(interaction);
+    try {
+        await removeTask(interaction.user.id, taskId);
+        replyTodoList(interaction);
+    } catch (error) {
+        replyError(interaction, "An error occured while removing your Task. Maybe the title you entered is invalid. Try again later.");
+    }
 }
 
 function todoViewController(interaction: CommandInteraction) {
@@ -96,23 +108,36 @@ function todoViewController(interaction: CommandInteraction) {
 }
 
 async function replyTodoList(interaction: CommandInteraction) {
-    const todoList = new TodoList(await getTodoList(interaction.user.id));
-    let description;
+    try {
+        const todoListData = await getTodoList(interaction.user.id);
+        const todoList = new TodoList(todoListData);
+        let description;
 
-    if (todoList.allTasks.length)
-        description = [
-            ...todoList.undoneTasks.map(t => t.title),
-            ...todoList.doneTasks.map(t => strikethrough(t.title)),
-        ].join("\n");
-    else description = "Your todo list is empty";
-    const embed = new InfoEmbed();
-    embed.setTitle("Todo list").setDescription(description);
-    interaction.reply({ embeds: [embed], ephemeral: true })
+        if (todoList.allTasks.length)
+            description = [
+                ...todoList.undoneTasks.map(t => t.title),
+                ...todoList.doneTasks.map(t => strikethrough(t.title)),
+            ].join("\n");
+        else description = "Your todo list is empty";
+        const embed = new InfoEmbed();
+        embed.setTitle("Todo list").setDescription(description);
+        interaction.reply({ embeds: [embed], ephemeral: true })
+    } catch (error) {
+        replyError(interaction, "An error occured while fetching your Todo List. Try again later.");
+    }
 }
 
 async function replyTask(interaction: CommandInteraction, taskId: string) {
-    const task = await getTask(interaction.user.id, taskId);
-    const embed = new InfoEmbed();
-    embed.setTitle(task.title).description = task.description || null;
-    interaction.reply({ embeds: [embed], ephemeral: true })
+    try {
+        const task = await getTask(interaction.user.id, taskId);
+        const embed = new InfoEmbed();
+        embed.setTitle(task.title).description = task.description || null;
+        interaction.reply({ embeds: [embed], ephemeral: true });
+    } catch (error) {
+        replyError(interaction, "An error occured while fetching your Task. Maybe the title you entered is invalid. Try again later.");
+    }
+}
+
+function replyError(interaction: CommandInteraction, message?: string) {
+    interaction.reply({ embeds: [new ErrorEmbed(message || "An Error occured. Please contact the developers.")], ephemeral: true });
 }
