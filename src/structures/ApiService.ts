@@ -47,6 +47,14 @@ export async function markTaskDone(userId: string, task: Task) {
     }
 }
 
+export async function removeTask(userId:string, taskId: string) {
+    try {
+        await axiosInstance.delete(`/todo/${taskId}`, { headers: generateAuthHeader(userId) });
+    } catch (error) {
+        return Promise.reject(error);
+    }
+}
+
 export async function addTask(userId: string, task: Task) {
     try {
         const response = await axiosInstance.post(

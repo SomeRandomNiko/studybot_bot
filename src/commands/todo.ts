@@ -1,7 +1,7 @@
 import { strikethrough } from "@discordjs/builders";
 import { ApplicationCommandOptionChoice, AutocompleteInteraction, CommandInteraction, MessageEmbed } from "discord.js";
 import Fuse from "fuse.js";
-import { addTask, getTask, getTodoList, markTaskDone } from "../structures/ApiService";
+import { addTask, getTask, getTodoList, markTaskDone, removeTask } from "../structures/ApiService";
 import { Command } from "../structures/Command";
 import { InfoEmbed } from "../structures/Embed";
 import { Task, TodoList } from "../structures/TodoList";
@@ -26,6 +26,11 @@ export default new Command({
                 { name: "title", description: "Title of the task", type: "STRING", required: true, autocomplete: true }
             ]
         },
+        {
+            name: "remove", description: "Remove a Task", type: "SUB_COMMAND", options: [
+                { name: "title", description: "Title of the task", type: "STRING", required: true, autocomplete: true }
+            ]
+        },
     ],
     autocomplete: todoAutocomplete
 }, todoController);
@@ -36,7 +41,9 @@ async function todoAutocomplete(interaction: AutocompleteInteraction): Promise<A
 
     const todoList = new TodoList(await getTodoList(interaction.user.id));
 
-    const foundTasks = new Fuse(todoList.allTasks, { keys: ["title"] }).search(option);
+    const subcommand = interaction.options.getSubcommand();
+
+    const foundTasks = new Fuse(subcommand === "done" ? todoList.undoneTasks : todoList.allTasks, { keys: ["title"] }).search(option);
 
     const tasks = foundTasks.length ? foundTasks.map(t => t.item) : todoList.allTasks;
 
@@ -55,6 +62,8 @@ function todoController(interaction: CommandInteraction) {
         return todoAddController(interaction);
     if (subcommand === "done")
         return todoDoneController(interaction);
+    if(subcommand === "remove")
+        return todoRemoveController(interaction);
     return todoViewController(interaction);
 }
 
@@ -71,6 +80,12 @@ async function todoDoneController(interaction: CommandInteraction) {
     replyTodoList(interaction);
 }
 
+async function todoRemoveController(interaction: CommandInteraction) {
+    const taskId = interaction.options.getString("title", true);
+    await removeTask(interaction.user.id, taskId);
+    replyTodoList(interaction);
+}
+
 function todoViewController(interaction: CommandInteraction) {
     const taskId = interaction.options.getString("title")
     if (taskId) {
@@ -82,10 +97,14 @@ function todoViewController(interaction: CommandInteraction) {
 
 async function replyTodoList(interaction: CommandInteraction) {
     const todoList = new TodoList(await getTodoList(interaction.user.id));
-    const description = [
-        ...todoList.undoneTasks.map(t => t.title),
-        ...todoList.doneTasks.map(t => strikethrough(t.title)),
-    ].join("\n");
+    let description;
+
+    if (todoList.allTasks.length)
+        description = [
+            ...todoList.undoneTasks.map(t => t.title),
+            ...todoList.doneTasks.map(t => strikethrough(t.title)),
+        ].join("\n");
+    else description = "Your todo list is empty";
     const embed = new InfoEmbed();
     embed.setTitle("Todo list").setDescription(description);
     interaction.reply({ embeds: [embed], ephemeral: true })
