@@ -7,7 +7,7 @@
     "dev": "ts-node-dev ./src/index.ts",
     "build": "tsc",
     "start": "node ./dist/index.js",
-    "deploy": "git pull && git submodule update --recursive && npm install && npm run build && systemctl restart studybot_api"
+    "deploy": "git pull && git submodule update --recursive && npm install && npm run build && systemctl restart studybot_bot"
   },
   "author": "SomeRandomNiko",
   "license": "ISC",
