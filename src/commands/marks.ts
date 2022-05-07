@@ -95,6 +95,8 @@ async function gradesController(interaction: CommandInteraction) {
             }
         });
 
+        embedFields.unshift({ name: "Semester average", value: subject.semesterAverage.toFixed(2), inline: false });
+
         embed.setDescription(`Subject: ${bold(subjectOption)}`);
         file = new MessageAttachment(subject.renderChart(), "chart.png");
 
@@ -107,6 +109,9 @@ async function gradesController(interaction: CommandInteraction) {
                 inline: true
             }
         });
+
+        embedFields.unshift({ name: "Semester average", value: grades.semesterAverage.toFixed(2), inline: false });
+
         embed.setDescription(`Subject: ${bold("All")}`);
         file = new MessageAttachment(grades.renderChart(), "chart.png");
     }

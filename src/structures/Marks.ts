@@ -199,7 +199,7 @@ export namespace StudybotApi {
         }
 
         get semesterAverage() {
-            const sum = this.subjects.reduce((acc, value) => {
+            const sum = this.subjectsWithMarks.reduce((acc, value) => {
                 return acc + value.semesterAverage;
             }, 0);
             return sum / this.subjectsWithMarks.length;
