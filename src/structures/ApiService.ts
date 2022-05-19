@@ -47,7 +47,7 @@ export async function markTaskDone(userId: string, task: Task) {
     }
 }
 
-export async function removeTask(userId:string, taskId: string) {
+export async function removeTask(userId: string, taskId: string) {
     try {
         await axiosInstance.delete(`/todo/${taskId}`, { headers: generateAuthHeader(userId) });
     } catch (error) {
@@ -104,6 +104,15 @@ export async function isDigregConnected(userId: string) {
     try {
         const userData = await getUserData(userId);
         return !!userData.digreg;
+    } catch (error) {
+        return Promise.reject(error);
+    }
+}
+
+export async function getCalendar(userId: string, ...dates: string[]) {
+    try {
+        const response = await axiosInstance.get(`/calendar/${dates.join(",")}`, { headers: generateAuthHeader(userId) });
+        return response.data;
     } catch (error) {
         return Promise.reject(error);
     }

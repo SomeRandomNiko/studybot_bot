@@ -5,5 +5,5 @@ import config from "../shared/config";
 export default new Event("ready", () => {
     console.log(`Client Logged in as ${client.user?.username}#${client.user?.discriminator}`);
     client.publishCommands(client.slashCommands, config.guildIds);
-    client.user?.setPresence({ status: "idle", activities: [{ name: "Development", type: "PLAYING" }] });
+    client.user?.setPresence({ status: "online", activities: [{ name: "🧠📝📖", type: "PLAYING" }] });
 });
