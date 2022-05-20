@@ -6,7 +6,8 @@ import stop_timer from "../buttons/stop_timer";
 import { getTimer } from "../structures/ApiService";
 import start_timer from "../buttons/start_timer";
 import { RepliableInteraction } from "../structures/Middleware";
-import { time } from "@discordjs/builders";
+import { hyperlink, time } from "@discordjs/builders";
+import config from "../shared/config";
 
 export default new Command({
     name: "timer",
@@ -53,16 +54,21 @@ function timerController(interaction: Interaction) {
 }
 
 export async function startTimer(interaction: RepliableInteraction) {
-    const timer = await getTimer(interaction.user.id);
-    if (timer) {
-        if (!studyTimers.has(interaction.user.id)) {
-            interaction.reply({ embeds: [new InfoEmbed("⏱️ Timer started")], ephemeral: true });
-            sendStudyMessage(interaction, timer);
+    try {
+        
+        const timer = await getTimer(interaction.user.id);
+        if (timer) {
+            if (!studyTimers.has(interaction.user.id)) {
+                interaction.reply({ embeds: [new InfoEmbed("⏱️ Timer started")], ephemeral: true });
+                sendStudyMessage(interaction, timer);
+            } else {
+                interaction.reply({ ephemeral: true, embeds: [new InfoEmbed("ℹ️ Timer is already active")] });
+            }
         } else {
-            interaction.reply({ ephemeral: true, embeds: [new InfoEmbed("ℹ️ Timer is already active")] });
+            interaction.reply({ embeds: [new ErrorEmbed("❌ Error with starting the timer")], ephemeral: true });
         }
-    } else {
-        interaction.reply({ embeds: [new ErrorEmbed("❌ Error with starting the timer")], ephemeral: true });
+    } catch (error) {
+        interaction.reply({ embeds: [new ErrorEmbed(`An error occured while retrieving the timer. If you have not created an account yet you can do so ${hyperlink("here", config.frontendServerUri)}. Else try again later.`)], ephemeral: true });
     }
 
 }
@@ -78,11 +84,15 @@ export async function stopTimer(interaction: RepliableInteraction) {
     }
 }
 async function viewTimer(interaction: RepliableInteraction) {
-    const timer = await getTimer(interaction.user.id);
-    if (timer) {
-        interaction.reply({ embeds: [new TimerEmbed(timer)], components: [new MessageActionRow().addComponents(start_timer, stop_timer)], ephemeral: true });
-    } else {
-        interaction.reply({ embeds: [new ErrorEmbed("❌ Error retrieving the timer")], ephemeral: true });
+    try {
+        const timer = await getTimer(interaction.user.id);
+        if (timer) {
+            interaction.reply({ embeds: [new TimerEmbed(timer)], components: [new MessageActionRow().addComponents(start_timer, stop_timer)], ephemeral: true });
+        } else {
+            interaction.reply({ embeds: [new ErrorEmbed("❌ Error ")], ephemeral: true });
+        }
+    } catch (error) {
+        interaction.reply({ embeds: [new ErrorEmbed(`An error occured while retrieving the timer. If you have not created an account yet you can do so ${hyperlink("here", config.frontendServerUri)}. Else try again later.`)], ephemeral: true });
     }
 }
 

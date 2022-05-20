@@ -15,10 +15,13 @@ export async function getCachedGrades(userId: string) {
         cached.timeout = timeout;
         return cached.grades;
     } else {
-        const grades = new StudybotApi.Grades(await getGrades(userId));
-        const timeout = setTimeout(() => gradesCache.delete(userId), 10000);
-        gradesCache.set(userId, { grades, timeout });
-        return grades;
+        try {
+            const grades = new StudybotApi.Grades(await getGrades(userId));
+            const timeout = setTimeout(() => gradesCache.delete(userId), 10000);
+            gradesCache.set(userId, { grades, timeout });
+            return grades;     
+        } catch (error) {
+        }
     }
 }
 

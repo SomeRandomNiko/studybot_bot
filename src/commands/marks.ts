@@ -40,7 +40,6 @@ async function autocomplete(interaction: AutocompleteInteraction): Promise<Appli
             }
         });
     } catch (error) {
-        console.log(error);
         return [];
     }
 }
@@ -56,6 +55,9 @@ function sendError(interaction: CommandInteraction | MessageComponentInteraction
             embed = new ErrorEmbed(`You have not connected your ${italic("Digitales Register")} account yet. You can do so ${hyperlink("here", config.frontendServerUri)}.`);
             break;
 
+        case 404:
+            embed = new ErrorEmbed(`You have not created a studybot account yet. You can do so ${hyperlink("here", config.frontendServerUri)}.`);
+            break;
         default:
             embed = new ErrorEmbed(`If you encounter this error, please contact the developers.`);
             break;

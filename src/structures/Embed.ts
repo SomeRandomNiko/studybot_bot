@@ -29,7 +29,6 @@ export class InfoEmbed extends ExtendedEmbed {
 export class UserDataEmbed extends InfoEmbed {
     constructor(user: any) {
         super();
-        this.setTitle("User");
         if (user.digreg) {
             this.setAuthor({ name: user.digreg.fullName, iconURL: user.discord.avatarUrl });
             this.addField("Class", user.digreg.className);

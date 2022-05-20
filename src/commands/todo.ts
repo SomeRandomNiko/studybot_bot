@@ -1,6 +1,7 @@
-import { strikethrough } from "@discordjs/builders";
+import { hyperlink, strikethrough } from "@discordjs/builders";
 import { ApplicationCommandOptionChoice, AutocompleteInteraction, CommandInteraction, MessageEmbed } from "discord.js";
 import Fuse from "fuse.js";
+import config from "../shared/config";
 import { addTask, getTask, getTodoList, markTaskDone, removeTask } from "../structures/ApiService";
 import { Command } from "../structures/Command";
 import { ErrorEmbed, InfoEmbed } from "../structures/Embed";
@@ -39,20 +40,25 @@ async function todoAutocomplete(interaction: AutocompleteInteraction): Promise<A
     // TODO fi
     const option = interaction.options.getFocused().toString();
 
-    const todoList = new TodoList(await getTodoList(interaction.user.id));
-
-    const subcommand = interaction.options.getSubcommand();
-
-    const foundTasks = new Fuse(subcommand === "done" ? todoList.undoneTasks : todoList.allTasks, { keys: ["title"] }).search(option);
-
-    const tasks = foundTasks.length ? foundTasks.map(t => t.item) : todoList.allTasks;
-
-    return tasks.map(t => {
-        return {
-            name: t.title,
-            value: t._id!
-        }
-    })
+    try {
+        
+        const todoList = new TodoList(await getTodoList(interaction.user.id));
+        
+        const subcommand = interaction.options.getSubcommand();
+        
+        const foundTasks = new Fuse(subcommand === "done" ? todoList.undoneTasks : todoList.allTasks, { keys: ["title"] }).search(option);
+        
+        const tasks = foundTasks.length ? foundTasks.map(t => t.item) : todoList.allTasks;
+        
+        return tasks.map(t => {
+            return {
+                name: t.title,
+                value: t._id!
+            }
+        })
+    } catch (error) {
+        return [];
+    }
 }
 
 
@@ -74,7 +80,7 @@ async function todoAddController(interaction: CommandInteraction) {
         await addTask(interaction.user.id, new Task(title, description || undefined));
         replyTodoList(interaction);
     } catch (error) {
-        replyError(interaction, "An error occured while adding your Task. Try again later.");
+        replyError(interaction, `An error occured while adding your Task. If you have not created an account yet you can do so ${hyperlink("here", config.frontendServerUri)}. Else try again later.`);
     }
 }
 async function todoDoneController(interaction: CommandInteraction) {
@@ -84,7 +90,7 @@ async function todoDoneController(interaction: CommandInteraction) {
         await markTaskDone(interaction.user.id, task);
         replyTodoList(interaction);
     } catch (error) {
-        replyError(interaction, "An error occured while marking your Task as done. Maybe the title you entered is invalid. Try again later.");
+        replyError(interaction, `An error occured while marking your Task as done. Maybe the title you entered is invalid. If you have not created an account yet you can do so ${hyperlink("here", config.frontendServerUri)}. Else try again later.`);
     }
 }
 
@@ -94,7 +100,7 @@ async function todoRemoveController(interaction: CommandInteraction) {
         await removeTask(interaction.user.id, taskId);
         replyTodoList(interaction);
     } catch (error) {
-        replyError(interaction, "An error occured while removing your Task. Maybe the title you entered is invalid. Try again later.");
+        replyError(interaction, `An error occured while removing your Task. Maybe the title you entered is invalid. If you have not created an account yet you can do so ${hyperlink("here", config.frontendServerUri)}. Else try again later.`);
     }
 }
 
@@ -115,15 +121,15 @@ async function replyTodoList(interaction: CommandInteraction) {
 
         if (todoList.allTasks.length)
             description = [
-                ...todoList.undoneTasks.map(t => t.title),
-                ...todoList.doneTasks.map(t => strikethrough(t.title)),
+                ...todoList.undoneTasks.map(t => `⏺️ ${t.title}`),
+                ...todoList.doneTasks.map(t => `✅ ${strikethrough(t.title)}`),
             ].join("\n");
-        else description = "Your todo list is empty";
+        else description = `❌ Your todo list is empty`;
         const embed = new InfoEmbed();
         embed.setTitle("Todo list").setDescription(description);
         interaction.reply({ embeds: [embed], ephemeral: true })
     } catch (error) {
-        replyError(interaction, "An error occured while fetching your Todo List. Try again later.");
+        replyError(interaction, `An error occured while fetching your Todo List. Have you created an account? If not you can do so ${hyperlink("here", config.frontendServerUri)}. Else try again later.`);
     }
 }
 
@@ -134,7 +140,7 @@ async function replyTask(interaction: CommandInteraction, taskId: string) {
         embed.setTitle(task.title).description = task.description || null;
         interaction.reply({ embeds: [embed], ephemeral: true });
     } catch (error) {
-        replyError(interaction, "An error occured while fetching your Task. Maybe the title you entered is invalid. Try again later.");
+        replyError(interaction, `An error occured while fetching your Task. Maybe the title you entered is invalid. If you have not created an account yet you can do so ${hyperlink("here", config.frontendServerUri)}. Else try again later.`);
     }
 }
 
